@@ -16,13 +16,19 @@
 
     <el-checkbox  @change="selectFeature" >识别要素</el-checkbox>
 
+    
 
+
+    
     
 
     <div style="display:flex">
       <button @click="startMeasure">开始测距</button>
       <button @click="stopMeasure">清除测距</button>
 
+      
+    </div>
+     <el-checkbox  @change="changeHand" >是否开启手绘</el-checkbox>
       <el-button @click="drawFeature('Point')">画点</el-button>
       <el-button @click="drawFeature('LineString')">画线</el-button>
       <el-button @click="drawFeature('Polygon')">画面</el-button>
@@ -30,9 +36,7 @@
       <el-button @click="draw.removeLastPoint()">撤回</el-button>
       <el-button @click="map.removeInteraction(draw)">取消</el-button>
       <el-button @click="clearDrawLayer()">清除</el-button>
-
-
-
+    <div>
 
     </div>
   </div>
@@ -78,6 +82,7 @@
       return {
         map:null,
         overlay:null,
+
         opacity:1,    //初始透明度为1
         // 在绘制时，保存到组件中，为了删除时可以删除
         drawLayers:[],
@@ -87,6 +92,13 @@
         draw_source: new VectorSource(),
         draw_vector: {},
         draw: {},
+
+        boolTrue:true,
+        boolFalse:false,
+
+        
+
+        
 
       }
     },
@@ -294,18 +306,18 @@
           //绘制好后，在地图上呈现的样式
           style: new Style({
             fill: new Fill({
-              color: "rgba(255, 255, 255, 0.2)",
+              color: "rgba(110, 200, 105, 0.2)",
             }),
             stroke: new Stroke({
               //边界样式
-              color: "#ffcc33",
+              color: "#ff2a00",
               width: 3,
             }),
             //点样式继承image
             image: new Circle({
               radius: 7,
               fill: new Fill({
-                color: "#ffcc33",
+                color: "#ff2a00",
               }),
             }),
           }),
@@ -319,32 +331,26 @@
         this.draw_vector.getSource().clear(); //清除图层上的所有要素
       },
 
+      // 是否开启手画
+      changeHand:function(checked){
+        if(checked){
+          this.freehand = this.$data.boolTrue;
+        }else{
+          this.freehand = this.$data.boolFalse;
+        }
+
+      },
       //绘制点线面
       drawFeature(featureType = "") {
         this.map.removeInteraction(this.draw);
-
         this.draw = new Draw({
           source: this.draw_source,
           type: featureType,
-          //绘制时，在地图上呈现的样式
-          style: new Style({
-            fill: new Fill({
-              color: "rgba(255, 255, 255, 0.2)",
-            }),
-            stroke: new Stroke({
-              color: "#ffcc33",
-              width: 2,
-            }),
-            image: new Circle({
-              radius: 7,
-              fill: new Fill({
-                color: "#ffcc33",
-              }),
-            }),
-          }),
+          freehand:this.freehand,   
         });
         this.map.addInteraction(this.draw);
       },
+    
       // 测距功能
       startMeasure: function () {
         const source = new VectorSource();
